@@ -1,0 +1,11 @@
+# mybatis config
+mybatis:
+  type-aliases-package: com.mjm.springbootmybatislearning.model.entity
+  mapper-locations: classpath:mapper/mybatis/*.xml
+  config-location: classpath:mybatis-config.xml
+spring:
+  datasource:
+    username:
+    password:
+    url: jdbc:mysql://localhost/mybatis?characterEncoding=UTF-8
+    driver-class-name: com.mysql.jdbc.Driver

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mjm.springbootmybatislearning.dao.mapper.BlogMapper" >
+  <resultMap id="BaseResultMap" type="blog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="author_id" property="authorId" jdbcType="INTEGER" />
+  </resultMap>
+    <resultMap id="authorMap" type="author" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="author_name" property="authorName" jdbcType="VARCHAR" />
+        <result column="author_age" property="authorAge" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+  <resultMap id="blogAuthorResultMap" type="blogAuthor">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="author_id" property="authorId" jdbcType="INTEGER" />
+    <association column="author_id" property="author" javaType="com.mjm.springbootmybatislearning.model.entity.Author"
+                    select="selectAuthorById" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, content, title, author_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from blog
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from blog
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="blog" >
+    insert into blog (id, content, title,
+      author_id)
+    values (#{id,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR},
+      #{authorId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="blog" >
+    insert into blog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="authorId != null" >
+        author_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="authorId != null" >
+        #{authorId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="blog" >
+    update blog
+    <set >
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="authorId != null" >
+        author_id = #{authorId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="blog" >
+    update blog
+    set content = #{content,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      author_id = #{authorId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+
+  <!--要使用延迟记载的方法-->
+  <select id="selectBlogAuthor" resultMap="blogAuthorResultMap">
+        SELECT id,title,content,author_id FROM blog
+    </select>
+
+    <!--
+    查询结果association 对象的结果为null 问题原因？
+       将resultType = com.mjm.springbootmybatislearning.model.entity.Author
+       修改为 resultMap="authorMap"
+       自己重新定义的 resultMap
+    -->
+  <select id="selectAuthorById" resultMap="authorMap" parameterType="java.lang.Integer" >
+    select
+    author_name, author_age,create_time
+    from author
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+</mapper>
