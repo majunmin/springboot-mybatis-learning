@@ -7,5 +7,27 @@ spring:
   datasource:
     username:
     password:
-    url: jdbc:mysql://localhost/mybatis?characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/mybatis?characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 20000ms
+
+# redisTemplate redis 集群配置
+#pring:
+# application:
+#   name: spring-boot-redis
+# redis:
+#   host: 192.168.145.132
+#   port: 6379
+#   timeout: 20000
+#   cluster:
+#     nodes: 192.168.211.134:7000,192.168.211.134:7001,192.168.211.134:7002
+#     maxRedirects: 6
+#   pool:
+#     max-active: 8
+#     min-idle: 0
+#     max-idle: 8
+#     max-wait: -1
+

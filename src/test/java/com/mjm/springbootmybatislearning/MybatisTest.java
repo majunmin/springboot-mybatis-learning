@@ -198,4 +198,33 @@ public class MybatisTest {
 //            sqlSession2.close();
         }
     }
+
+    /**
+     * Mybatis redis cache
+     *
+     * 启用缓存 spring @EnableCache
+     *
+     * @CacheEvict 一般注解到删除数据的操作上，会将一条或多条数据从缓存中删除。
+     * @CachePut 是将数据加入到redis缓存中
+     * @Cacheable 在获取数据的时候会先查询缓存，如果缓存中存在，则不执行查询数据库的方法，如果不存在则查询数据库，并加入到缓存中。
+     *     Cacheable  根据查询的参数决定是否查询数据库
+     * @CacheConfig  作用于类上,指定cacheNames，则后面的方法的注解value可省略且value值与类注解的value相同。
+     */
+    @Test
+    public void redisCache(){
+        User user1 = userMapper.selectByPrimaryKey(1);
+        User user2 = userMapper.selectByPrimaryKey(1);
+
+        System.out.println(user2);
+        System.out.println(user1);
+
+        user1.setUserName("mjm");
+        int res = userMapper.updateByPrimaryKeySelective(user1);
+
+        user1.setAge(77);
+        int res2 = userMapper.updateByPrimaryKeySelective(user1);
+
+        System.out.println("res" + res + " " + "res2" + res2);
+
+    }
 }
