@@ -8,6 +8,7 @@ import java.io.Serializable;
 @Alias("user")
 @Data
 public class User implements Serializable {
+
     private Integer id;
 
     private String userName;
@@ -17,5 +18,7 @@ public class User implements Serializable {
     private String password;
 
     private Double weight;
+
+    private Integer isHigh;
 
 }

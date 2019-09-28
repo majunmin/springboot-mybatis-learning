@@ -1,5 +1,6 @@
 package com.mjm.springbootmybatislearning;
 
+import com.alibaba.fastjson.JSON;
 import com.mjm.springbootmybatislearning.dao.mapper.AuthorMapper;
 import com.mjm.springbootmybatislearning.dao.mapper.BlogMapper;
 import com.mjm.springbootmybatislearning.dao.mapper.UserMapper;
@@ -7,7 +8,10 @@ import com.mjm.springbootmybatislearning.model.entity.Author;
 import com.mjm.springbootmybatislearning.model.entity.Blog;
 import com.mjm.springbootmybatislearning.model.entity.BlogAuthor;
 import com.mjm.springbootmybatislearning.model.entity.User;
+import com.mjm.springbootmybatislearning.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.groboutils.junit.v1.MultiThreadedTestRunner;
+import net.sourceforge.groboutils.junit.v1.TestRunnable;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Before;
@@ -18,6 +22,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -29,18 +36,18 @@ import java.util.stream.IntStream;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class MybatisTest {
+public class SpringMybatisTest {
 
     @Autowired
     ApplicationContext applicationContext;
 
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
-    @Autowired
+    @Resource
     private AuthorMapper authorMapper;
 
-    @Autowired
+    @Resource
     private BlogMapper blogMapper;
 
     private SqlSessionFactory sqlSessionFactory = null;
@@ -83,10 +90,11 @@ public class MybatisTest {
             author.setCreateTime(new Date(System.currentTimeMillis()));
             authorMapper.insertSelective(author);
 
-            Blog blog = new Blog();
-            blog.setAuthorId(author.getId());
-            blog.setTitle("Title"+ i);
-            blog.setContent("Content"+ i + " : hello world!");
+            Blog blog = Blog.builder()
+                    .authorId(author.getId())
+                    .title("Title"+ i)
+                    .content("Content"+ i + " : hello world!")
+                    .build();
             blogMapper.insertSelective(blog);
         });
 
@@ -226,5 +234,54 @@ public class MybatisTest {
 
         System.out.println("res" + res + " " + "res2" + res2);
 
+    }
+
+    @Test
+    public void testJson(){
+        User user = new User();
+        user.setIsHigh(18);
+        user.setUserName("mjm");
+        user.setAge(16);
+
+        System.out.println(JSON.toJSONString(user));
+
+    }
+
+    public static final int THREAD_COUNT = 200;
+
+    @Autowired
+    private UserService userService;
+
+    @Test
+    public void testMultiTranscation(){
+        Instant start = Instant.now();
+
+        try {
+            // Runner数组，相当于并发多少个
+            TestRunnable[] trs = new TestRunnable[THREAD_COUNT];
+            for (int i = 0; i < THREAD_COUNT; i++) {
+                trs[i] = new TestRunnable() {
+                    @Override
+                    public void runTest() throws Throwable {
+                        Blog blog = Blog.builder()
+                                .content("bangbangbang")
+                                .title("test")
+                                .build();
+                        userService.releaseBlog(blog, 1);
+                    }
+                };
+            }
+
+            // 用于执行多线程测试用例的Runner，将前面定义的单个Runner组成的数组传入
+            MultiThreadedTestRunner mttr = new MultiThreadedTestRunner(trs);
+            // 并发执行数组里定义的内容
+            mttr.runTestRunnables();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        Instant end = Instant.now();
+
+        System.out.println(String.format("time last: %s ms", Duration.between(start, end).toMillis()));
     }
 }

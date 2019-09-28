@@ -14,7 +14,7 @@
 
         <jdbcConnection
                 driverClass="com.mysql.jdbc.Driver"
-                connectionURL="jdbc:mysql://47.105.144.63:3306/mybatis?characterEncoding=UTF-8"
+                connectionURL="jdbc:mysql://alima1:3306/mybatis?characterEncoding=UTF-8"
                 userId="root"
                 password="root"/>
 

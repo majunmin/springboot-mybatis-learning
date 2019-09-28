@@ -1,6 +1,7 @@
 package com.mjm.springbootmybatislearning.dao.mapper;
 
 import com.mjm.springbootmybatislearning.model.entity.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -32,7 +33,7 @@ public interface UserMapper {
      * @param id
      * @return
      */
-    @Cacheable(key = "#p0")
+//    @Cacheable(key = "#p0")
     User selectByPrimaryKey(Integer id);
 
     /**
@@ -44,4 +45,7 @@ public interface UserMapper {
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
+
+//    @CachePut(key = "#p0")
+    int updateAgeById(@Param("id") Integer userId, @Param("age") Integer age);
 }
