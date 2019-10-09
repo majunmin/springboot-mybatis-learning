@@ -30,6 +30,8 @@
 MapperScannerRegistrarNotFoundConfiguration 的代码逻辑是： 如果标记了 @MapperScan , 将会生成 MapperFactoryBean，
 如果不存在 MapperFactoryBean 这个类实例， 也就是没 @MapperScan , 此时就会走 @Import 里面的配置， 下面看看 `AutoConfiguredMapperScannerRegistrar` 的配置
 
+
+## @Mapper
 `AutoConfiguredMapperScannerRegistrar` 是 `MybatisAutoConfiguration` 的一个内部类
 
 ```java
@@ -235,6 +237,99 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
 
 MapperFactoryBean 实现了 FactoryBean 接口,以及继承了 SqlSessionDaoSupport .
 继承 SqlSessionDaoSupport 的主要目的是为了获取 SqlSession, 通过sqlSession 获得具体的 mapper 代理类。
+
+
+## @MapperScan
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+@Import(MapperScannerRegistrar.class)
+public @interface MapperScan {
+    // ...
+}
+```
+
+当处理 @Import  时候会处理 `MapperScannerRegistrar`
+
+```java
+public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+
+  private ResourceLoader resourceLoader;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+
+    AnnotationAttributes annoAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
+    ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
+
+    // this check is needed in Spring 3.1
+    if (resourceLoader != null) {
+      scanner.setResourceLoader(resourceLoader);
+    }
+
+    Class<? extends Annotation> annotationClass = annoAttrs.getClass("annotationClass");
+    if (!Annotation.class.equals(annotationClass)) {
+      scanner.setAnnotationClass(annotationClass);
+    }
+
+    Class<?> markerInterface = annoAttrs.getClass("markerInterface");
+    if (!Class.class.equals(markerInterface)) {
+      scanner.setMarkerInterface(markerInterface);
+    }
+
+    Class<? extends BeanNameGenerator> generatorClass = annoAttrs.getClass("nameGenerator");
+    if (!BeanNameGenerator.class.equals(generatorClass)) {
+      scanner.setBeanNameGenerator(BeanUtils.instantiateClass(generatorClass));
+    }
+
+    Class<? extends MapperFactoryBean> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
+    if (!MapperFactoryBean.class.equals(mapperFactoryBeanClass)) {
+      scanner.setMapperFactoryBean(BeanUtils.instantiateClass(mapperFactoryBeanClass));
+    }
+    scanner.setSqlSessionTemplateBeanName(annoAttrs.getString("sqlSessionTemplateRef"));
+    scanner.setSqlSessionFactoryBeanName(annoAttrs.getString("sqlSessionFactoryRef"));
+
+    List<String> basePackages = new ArrayList<String>();
+    for (String pkg : annoAttrs.getStringArray("value")) {
+      if (StringUtils.hasText(pkg)) {
+        basePackages.add(pkg);
+      }
+    }
+    for (String pkg : annoAttrs.getStringArray("basePackages")) {
+      if (StringUtils.hasText(pkg)) {
+        basePackages.add(pkg);
+      }
+    }
+    for (Class<?> clazz : annoAttrs.getClassArray("basePackageClasses")) {
+      basePackages.add(ClassUtils.getPackageName(clazz));
+    }
+    scanner.registerFilters();
+    scanner.doScan(StringUtils.toStringArray(basePackages));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+
+}
+
+```
+
+由于 MapperScannerRegistrar 实现了 ImportBeanDefinitionRegistrar, 会执行其 `registerBeanDefinitions()`
+其实现就与 `AutoConfiguredMapperScannerRegistrar` 实现类似了, 
+
+其内部会实例化 MapperFactoryBean， 
+ 
+
 
 
 ## 总结
