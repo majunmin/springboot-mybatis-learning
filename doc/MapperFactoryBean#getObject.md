@@ -1,7 +1,7 @@
 # MapperFactoryBean#getObject
 
-> mybatis-spring 中， 需要对各个 Mapper 接口编写实现类， 实现类方法中一般都包含 SqlSessionTemplate 的相应方法。
-> mybatis-spring 根据 Mapper 接口实现代理类,从而使coder 更加简洁
+> mybatis-spring 中， 需要对各个 Mapper 接口编写实现类,  实现类方法中一般都包含 SqlSessionTemplate 的相应方法
+> mybatis-spring 根据 Mapper 接口实现代理类,从而使 coder 更加简洁
 
 1. 配置
 
@@ -13,19 +13,25 @@
 
 ```
 
-或者通过自动扫描的方式， 将 Mapper 接口类的 beanClass 设置为 MapperFactoryBean
+或者通过自动扫描的方式, 将 Mapper 接口类的 beanClass 设置为 MapperFactoryBean
+SqlSessionFactoryBuilder
+每个 Mapper接口都需要配置一个 `MapperFactoryBean` 接口,需注入两个参数: 一个是被代理的接口`mapperInterface`, 一个是 `sqlSessionFactory`
 
-每个 Mapper接口 都需要配置一个 MapperFactoryBean 接口,需注入两个参数: 一个是被代理的接口`mapperInterface`, 一个是 `sqlSessionFactory`
+
 
 ## MapperFactoryBean 的初始化
 
-1. 入参 mapperInterface
+1. 入参 `mapperInterface`
   mapper接口声明,用于生成代理类（JDK动态代理）
-2. 入参 sqlSessionFactory
+2. 入参 `sqlSessionFactory`
   用于初始化 `SqlSessionDaoSupport`(也可以配置 `sqlSessionTemplate`), 配置`sqlSessionFactory`最终也是生成`sqlSessionTemplate`
 3. 初始化回调
-  SqlSessionDaoSupport 继承自 `DaoSupport` , `DaoSupport` 实现了 `InitializingBean` , `MapperFactoryBean` 初始化回调方法为 `DaoSupport#afterPropertiesSet`
-  
+  `SqlSessionDaoSupport` 继承自 `DaoSupport` , `DaoSupport` 实现了 `InitializingBean` , `MapperFactoryBean` 初始化回调方法为 `DaoSupport#afterPropertiesSet()`
+
+
+<img src="https://gitee.com/niubenwsl/image_repo/raw/master/image/java/MapperFactoryBean.png" style="zoom:50%;" />
+
+
 
 ### checkDaoConfig
 

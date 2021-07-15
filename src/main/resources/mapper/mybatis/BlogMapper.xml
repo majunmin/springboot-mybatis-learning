@@ -7,7 +7,7 @@
     <result column="title" property="title" jdbcType="VARCHAR" />
     <result column="author_id" property="authorId" jdbcType="INTEGER" />
   </resultMap>
-    <resultMap id="authorMap" type="author" >
+  <resultMap id="authorMap" type="author" >
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="author_name" property="authorName" jdbcType="VARCHAR" />
         <result column="author_age" property="authorAge" jdbcType="INTEGER" />

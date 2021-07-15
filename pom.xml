@@ -88,6 +88,19 @@
             <version>1.2.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-cassandra</artifactId>
+            <version>2.1.2.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.cassandra/cassandra-all -->
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <version>3.11.4</version>
+        </dependency>
+
         <!--多线程测试-->
         <dependency>
             <groupId>net.sourceforge.groboutils</groupId>

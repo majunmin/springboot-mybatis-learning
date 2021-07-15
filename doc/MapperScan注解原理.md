@@ -3,8 +3,10 @@
 > 在springBoot 项目中 经常使用 @MapperScan 注解， 指定(basePackages),扫描Mapper接口类
 > 或者通过 @Mapper 注解标记 Mapper 接口类， 其实这两种方式扫描配置用的是同一个地方， 只是扫描入口不同。
 
-- @MapperScan 是根据 其注解上 @Import(MapperScannerRegistrar.class) 进行自动装配的， 最终调用的自动装配与 下面一致
-- @MapperScan 自动装配的入口 是 MybatisAutoConfiguration 的内部类 MapperScannerRegistrarNotFoundConfiguration, (位于 spring-boot-start 下 mybatis-spring-boot-autoconfigure)
+- `@MapperScan` 是根据 其注解上 `@Import(MapperScannerRegistrar.class)` 进行自动装配的, 最终调用的自动装配与 下面一致
+- `@MapperScan` 自动装配的入口 是 `MybatisAutoConfiguration` 的内部类 `MapperScannerRegistrarNotFoundConfiguration`, (位于 spring-boot-start 下 mybatis-spring-boot-autoconfigure)
+
+
 ```java
    /*
    * {@link org.mybatis.spring.annotation.MapperScan} ultimately ends up
@@ -93,8 +95,9 @@ MapperScannerRegistrarNotFoundConfiguration 的代码逻辑是： 如果标记�
     }
   }
 ```
-上面的代码逻辑基本就是初始化 ClassPathMapperScanner 扫描器， 这扫描器继承了spring 的 ClassPathBeanDefinitionScanner, 主要作用就是扫描 @Mapper 接口并注册为spring Bean，
-首先看看核心方法 doScan(), @MapperScan 注解的自动装配也是用了这个注解。
+
+上面的代码逻辑基本就是初始化 `ClassPathMapperScanner` 扫描器， 这扫描器继承了spring 的 `ClassPathBeanDefinitionScanner`, 主要作用就是扫描 `@Mapper` 接口并注册为spring Bean，
+首先看看核心方法 `doScan()`, `@MapperScan` 注解的自动装配也是用了这个注解
 
 ```java
    // ClassPathMapperScanner
@@ -117,7 +120,7 @@ MapperScannerRegistrarNotFoundConfiguration 的代码逻辑是： 如果标记�
   }
 ```
 
-doScan() 主要就是调用了父类ClassPathBeanDefinitionScanner 的 doScan(),获取所有的类定义， 之后执行自定义逻辑  ClassPathMapperScanner#processBeanDefinitions
+doScan() 主要就是调用了父类`ClassPathBeanDefinitionScanner#doScan()`,获取所有的类定义， 之后执行自定义逻辑  `ClassPathMapperScanner#processBeanDefinitions()`
 
 ```java
 // ClassPathMapperScanner
@@ -181,7 +184,10 @@ private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
 > **总结**: 重写 BeanDefinition 的 beanClass = MapperFactoryBean.class, 并且将 beanClass 也就是MapperFactoryBean 的构造器参数设置为 标注了 @Mapper 的接口，
 之后当 Mapper 接口注入的时候，实际调用的是 MapperFactoryBean 中 getObject() 获取的特定 Mapper 实例
 
-如下是 MapperFactoryBean 的核心逻辑， mapperInterface 字段是通过上面的 
+
+
+如下是 MapperFactoryBean 的核心逻辑， `mapperInterface` 字段是通过上面的 
+
 `definition.getConstructorArgumentValues().addGenericArgumentValue(definition.getBeanClassName());`设置的
 
 ```java
@@ -235,8 +241,8 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
 }
 ```
 
-MapperFactoryBean 实现了 FactoryBean 接口,以及继承了 SqlSessionDaoSupport .
-继承 SqlSessionDaoSupport 的主要目的是为了获取 SqlSession, 通过sqlSession 获得具体的 mapper 代理类。
+`MapperFactoryBean` 实现了 `FactoryBean` 接口,以及继承了 `SqlSessionDaoSupport` .
+继承 `SqlSessionDaoSupport` 的主要目的是为了获取 SqlSession, 通过 sqlSession 获得具体的 mapper 代理类
 
 
 ## @MapperScan
@@ -325,17 +331,18 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 ```
 
 由于 MapperScannerRegistrar 实现了 ImportBeanDefinitionRegistrar, 会执行其 `registerBeanDefinitions()`
-其实现就与 `AutoConfiguredMapperScannerRegistrar` 实现类似了, 
+其实现就与 `AutoConfiguredMapperScannerRegistrar` 实现类似了,
 
-其内部会实例化 MapperFactoryBean， 
+其内部会实例化 MapperFactoryBean
  
 
 
 
 ## 总结
-**综上**， 首先根据 @MapperScan 获取 basePackages 或者根据 @Mapper 获取所在的 packages, 之后通过 ClassPathMapperScan 扫描包， 获取所有的的 Mapper 接口类的 BeanDefinition，
-之后具体配置， 设置 beanClass = MapperFactoryBean, 设置 MapperFactoryBean 的构造器器参数为 实际的Mapper 接口类，通过 ClassPathBeanDefinitionScanner 父类进行 bean注册，自动注入的时候，
-机会调用 MapperFactoryBean#getObject() 获取实际的调用类型。
+
+**综上**， 首先根据 @MapperScan 获取 basePackages 或者根据 @Mapper 获取所在的 packages, 之后通过 ClassPathMapperScan 扫描包,  获取所有的的 Mapper 接口类的 BeanDefinition,
+之后具体配置, 设置 beanClass = MapperFactoryBean, 设置 MapperFactoryBean 的构造器器参数为 实际的 Mapper 接口类，通过 ClassPathBeanDefinitionScanner 父类进行 bean注册,自动注入的时候,
+机会调用 `MapperFactoryBean#getObject()` 获取实际的调用类型。
 
 
 

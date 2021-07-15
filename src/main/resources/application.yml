@@ -13,6 +13,11 @@ spring:
   redis:
     cluster:
       nodes: alima1:8000
+  data:
+    cassandra:
+      keyspace-name: majm
+      contact-points: 127.0.0.1
+      password: "root"
 
 # redisTemplate redis 集群配置
 #pring:

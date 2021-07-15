@@ -15,12 +15,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * java API 使用 mybatis 的方式
+ * 1. 读取配置文件
+ * 2. 通过  SqlSessionFactoryBuilder 创建  SqlSessionFactory
+ * 3. 通过 SqlSessionFactory(一般就是全局唯一)  创建 SqlSession
+ * 4. 通过 SQLSession 获取 mapper代理  MapperProxy
+ * 5. 通过 MapperProxy 访问数据库
+ */
 public class OriginMybatis {
 
     private SqlSessionFactory sqlSessionFactory;
 
     @Before
-    public void before(){
+    public void before() {
 
         /**
          * 原生 Mybatis加载
@@ -37,12 +45,12 @@ public class OriginMybatis {
     public void contextLoads() {
 
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        try{
-            UserMapper userMapper =  sqlSession.getMapper(UserMapper.class);
+        try {
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
             System.out.println(userMapper.selectByPrimaryKey(1));
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }finally {
+        } finally {
             sqlSession.close();
         }
 
